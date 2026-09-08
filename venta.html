@@ -199,6 +199,19 @@
   }
   body.contraste a.boton { background: #0B0B0B; color: #66C2FF; border-color: #66C2FF; }
 
+  /* Botones que llevan a OTRA página (no la misma pantalla): color distinto para que se note el cambio de página. */
+  a.boton-otra-pagina {
+    background: #111111;
+    color: #FFFFFF;
+    border-color: #111111;
+  }
+  a.boton-otra-pagina:hover { background: #000000; }
+  body.contraste a.boton-otra-pagina {
+    background: #FFFFFF;
+    color: #0B0B0B;
+    border-color: #FFFFFF;
+  }
+
   .barra-botones { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 1rem 0; }
 
   .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); gap: 1rem; margin: 1rem 0 2rem 0; }
@@ -261,7 +274,7 @@
     Usa los mismos datos y controles que configuró en el simulador principal.
   </p>
   <div class="barra-botones no-imprimir">
-    <a href="index.html" class="boton">← Volver al simulador principal</a>
+    <a href="index.html" class="boton boton-otra-pagina">← Volver al simulador principal</a>
     <button id="btnContraste" class="secundario" type="button">Modo alto contraste</button>
   </div>
 </header>

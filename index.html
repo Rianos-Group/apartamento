@@ -257,6 +257,19 @@
   }
   body.contraste a.boton { background: #0B0B0B; color: #66C2FF; border-color: #66C2FF; }
 
+  /* Botones que llevan a OTRA página (no la misma pantalla): color distinto para que se note el cambio de página. */
+  a.boton-otra-pagina {
+    background: #111111;
+    color: #FFFFFF;
+    border-color: #111111;
+  }
+  a.boton-otra-pagina:hover { background: #000000; }
+  body.contraste a.boton-otra-pagina {
+    background: #FFFFFF;
+    color: #0B0B0B;
+    border-color: #FFFFFF;
+  }
+
   .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); gap: 1rem; margin: 1rem 0 2rem 0; }
   .kpi-card {
     border-radius: 0.75rem;
@@ -326,7 +339,7 @@
   </p>
   <div class="barra-botones no-imprimir">
     <button id="btnContraste" class="secundario" type="button">Modo alto contraste</button>
-    <a href="venta.html" class="boton">¿Y si vende en unos años? →</a>
+    <a href="venta.html" class="boton boton-otra-pagina">¿Y si vende en unos años? ↗</a>
   </div>
 </header>
 
@@ -472,7 +485,7 @@
   </section>
 
   <div class="barra-botones no-imprimir">
-    <a href="venta.html" class="boton">Ver comparación si vende el apartamento en unos años →</a>
+    <a href="venta.html" class="boton boton-otra-pagina">Ver comparación si vende el apartamento en unos años ↗</a>
   </div>
 
   <h2>Gráficas</h2>
