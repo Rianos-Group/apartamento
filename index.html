@@ -49,6 +49,44 @@
     background: #1A1A1A;
   }
 
+  /* Cada escenario tiene su propio color de bloque, igual al color de su línea en las gráficas. */
+  section.panel.panel-base    { border: 3px solid #0072B2; background: #EAF4FB; }
+  section.panel.panel-mensual { border: 3px solid #E69F00; background: #FFF6E5; }
+  section.panel.panel-unico   { border: 3px solid #009E73; background: #E9F7F2; }
+  section.panel.panel-hoy     { border: 3px solid #CC79A7; background: #FCEEF6; }
+  section.panel.panel-riesgo  { border: 3px solid #D55E00; background: #FFF1E6; }
+  body.contraste section.panel.panel-base    { background: #0F2534; }
+  body.contraste section.panel.panel-mensual { background: #2C2200; }
+  body.contraste section.panel.panel-unico   { background: #00281D; }
+  body.contraste section.panel.panel-hoy     { background: #2B0F1F; }
+  body.contraste section.panel.panel-riesgo  { background: #2B1400; }
+
+  .badge {
+    display: inline-block;
+    width: 1.3rem;
+    height: 1.3rem;
+    border-radius: 0.3rem;
+    margin-right: 0.6rem;
+    vertical-align: middle;
+    border: 2px solid #111111;
+  }
+  body.contraste .badge { border-color: #FFFFFF; }
+  .badge-base    { background: #0072B2; }
+  .badge-mensual { background: #E69F00; }
+  .badge-unico   { background: #009E73; }
+  .badge-hoy     { background: #CC79A7; }
+  .badge-riesgo  { background: #D55E00; }
+
+  .leyenda-colores {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.5rem;
+    margin: 0.5rem 0 1.5rem 0;
+    font-weight: 700;
+    font-size: 1.05rem;
+  }
+  .leyenda-item { display: flex; align-items: center; }
+
   .campo { margin-bottom: 1.1rem; }
   label { display: block; font-weight: 700; margin-bottom: 0.35rem; }
   input[type=number], input[type=date] {
@@ -71,11 +109,19 @@
   .valor-slider {
     font-size: 1.6rem;
     font-weight: 700;
-    color: #0072B2;
     display: inline-block;
     margin-left: 0.5rem;
   }
-  body.contraste .valor-slider { color: #66C2FF; }
+  .txt-base    { color: #0072B2; }
+  .txt-mensual { color: #E69F00; }
+  .txt-unico   { color: #009E73; }
+  .txt-hoy     { color: #CC79A7; }
+  .txt-riesgo  { color: #D55E00; }
+  body.contraste .txt-base    { color: #66C2FF; }
+  body.contraste .txt-mensual { color: #FFC85C; }
+  body.contraste .txt-unico   { color: #5CE0B8; }
+  body.contraste .txt-hoy     { color: #F0A8D0; }
+  body.contraste .txt-riesgo  { color: #FF9A5C; }
 
   input[type=range] {
     width: 100%;
@@ -148,6 +194,8 @@
     border: 3px solid #0072B2;
   }
   body.contraste .kpi-card { background: #10222E; border-color: #66C2FF; }
+  .kpi-card.acento-mensual { background: #FFF6E5; border-color: #E69F00; }
+  body.contraste .kpi-card.acento-mensual { background: #2C2200; border-color: #FFC85C; }
   .kpi-card h3 { margin: 0 0 0.5rem 0; font-size: 1.15rem; }
   .kpi-valor { font-size: 2.6rem; font-weight: 700; line-height: 1.1; }
 
@@ -248,43 +296,60 @@
     </fieldset>
   </section>
 
-  <section class="panel" aria-label="Escenario abono mensual extra">
-    <h2>Escenario: abono mensual extra</h2>
+  <div class="leyenda-colores" aria-label="Leyenda de colores por escenario">
+    <span class="leyenda-item"><span class="badge badge-base"></span> Cuota normal</span>
+    <span class="leyenda-item"><span class="badge badge-mensual"></span> Abono mensual extra</span>
+    <span class="leyenda-item"><span class="badge badge-unico"></span> Abono único</span>
+    <span class="leyenda-item"><span class="badge badge-hoy"></span> Pagar todo hoy</span>
+    <span class="leyenda-item"><span class="badge badge-riesgo"></span> Riesgo de subida de tasa</span>
+  </div>
+
+  <section class="panel panel-base" aria-label="Escenario cuota normal">
+    <h2><span class="badge badge-base"></span>Escenario: cuota normal (sin abonos extra)</h2>
+    <p>Esta es la línea base para comparar los demás escenarios: solo se paga la cuota normal, sin abonar nada extra.</p>
+    <p>Termina de pagar en: <span class="valor-slider txt-base" id="valBaseCuando">—</span></p>
+    <p>Intereses totales que pagará: <span class="valor-slider txt-base" id="valBaseIntereses">—</span></p>
+  </section>
+
+  <section class="panel panel-mensual" aria-label="Escenario abono mensual extra">
+    <h2><span class="badge badge-mensual"></span>Escenario: abono mensual extra</h2>
     <div class="campo">
       <label for="inAbonoMensual">¿Cuánto abona de más cada mes?
-        <span class="valor-slider" id="valAbonoMensual">$500.000</span>
+        <span class="valor-slider txt-mensual" id="valAbonoMensual">$500.000</span>
       </label>
       <input type="range" id="inAbonoMensual" min="0" max="5000000" step="100000" value="500000">
     </div>
   </section>
 
-  <section class="panel" aria-label="Escenario abono único">
-    <h2>Escenario: abono único grande (una sola vez)</h2>
+  <section class="panel panel-unico" aria-label="Escenario abono único">
+    <h2><span class="badge badge-unico"></span>Escenario: abono único grande (una sola vez)</h2>
     <p class="nota">Por ejemplo una prima o un ahorro que usa una sola vez para pagar capital.</p>
     <div class="campo">
-      <label for="inAbonoUnico">Monto del abono único (COP)</label>
-      <input type="text" inputmode="numeric" id="inAbonoUnico" value="10.000.000">
+      <label for="inAbonoUnico">Monto del abono único (COP)
+        <span class="valor-slider txt-unico" id="valAbonoUnico">$10.000.000</span>
+      </label>
+      <input type="range" id="inAbonoUnico" min="0" max="50000000" step="500000" value="10000000">
     </div>
     <div class="campo">
       <label for="inAbonoUnicoMes">¿En qué mes lo haría? (1 = el próximo pago, 08/09/2026)
-        <span class="valor-slider" id="valAbonoUnicoMes">mes 12</span>
+        <span class="valor-slider txt-unico" id="valAbonoUnicoMes">mes 12</span>
       </label>
       <input type="range" id="inAbonoUnicoMes" min="1" max="150" step="1" value="12">
     </div>
   </section>
 
-  <section class="panel" aria-label="Escenario pagar toda la deuda hoy">
-    <h2>Escenario: pagar toda la deuda hoy</h2>
-    <p>Valor para cancelar la deuda hoy: <strong id="valPagoHoy">$0</strong></p>
-    <p>Intereses futuros que se evitarían: <strong id="valAhorroPagoHoy">$0</strong></p>
+  <section class="panel panel-hoy" aria-label="Escenario pagar toda la deuda hoy">
+    <h2><span class="badge badge-hoy"></span>Escenario: pagar toda la deuda hoy</h2>
+    <p>Valor para cancelar la deuda hoy: <span class="valor-slider txt-hoy" id="valPagoHoy">$0</span></p>
+    <p>Intereses futuros que se evitarían: <span class="valor-slider txt-hoy" id="valAhorroPagoHoy">$0</span></p>
   </section>
 
-  <section class="panel" aria-label="Riesgo de subida de tasa">
-    <h2>¿Y si se acaba la cobertura de tasa?</h2>
+  <section class="panel panel-riesgo" aria-label="Riesgo de subida de tasa">
+    <h2><span class="badge badge-riesgo"></span>¿Y si se acaba la cobertura de tasa?</h2>
     <p>El extracto muestra una tasa <strong>pactada</strong> de 20.98% E.A., pero hoy solo se cobra el 13% E.A. (un subsidio que dura un número limitado de años). Elija el mes en el que imagina que la tasa podría subir al 20.98%:</p>
     <div class="campo">
       <label for="inMesSube">Mes en el que sube la tasa
-        <span class="valor-slider" id="valMesSube">mes 60</span>
+        <span class="valor-slider txt-riesgo" id="valMesSube">mes 60</span>
       </label>
       <input type="range" id="inMesSube" min="1" max="150" step="1" value="60">
     </div>
@@ -293,31 +358,32 @@
     </div>
   </section>
 
-  <h2>Resultados del escenario "abono mensual extra"</h2>
+  <h2><span class="badge badge-mensual"></span>Resultados del escenario "abono mensual extra"</h2>
   <div class="kpis">
-    <div class="kpi-card">
+    <div class="kpi-card acento-mensual">
       <h3>Cuándo termina de pagar</h3>
       <div class="kpi-valor" id="kpiCuando">—</div>
     </div>
-    <div class="kpi-card">
+    <div class="kpi-card acento-mensual">
       <h3>Intereses totales que pagará</h3>
       <div class="kpi-valor" id="kpiIntereses">—</div>
     </div>
-    <div class="kpi-card">
+    <div class="kpi-card acento-mensual">
       <h3>Cuánto se ahorra vs. la cuota normal</h3>
       <div class="kpi-valor" id="kpiAhorro">—</div>
     </div>
-    <div class="kpi-card">
+    <div class="kpi-card acento-mensual">
       <h3>Cuántos meses se ahorra</h3>
       <div class="kpi-valor" id="kpiMeses">—</div>
     </div>
   </div>
 
-  <section aria-label="resumen en palabras">
-    <p id="resumenTexto" style="font-size: 1.25rem; font-weight: 700;">—</p>
+  <section class="panel panel-mensual" aria-label="resumen en palabras">
+    <p id="resumenTexto" style="font-size: 1.25rem; font-weight: 700; margin: 0;">—</p>
   </section>
 
   <h2>Gráficas</h2>
+  <p class="nota">Cada línea y cada barra usa el mismo color de la caja del escenario de arriba.</p>
   <div class="grafica" id="chartSaldo"></div>
   <div class="grafica" id="chartComposicion"></div>
   <div class="grafica" id="chartBarras"></div>
@@ -482,7 +548,7 @@
       tasaPactada: (parseFloat(document.getElementById('inTasaPactada').value) || 0) / 100,
       seguros: parseFloat(document.getElementById('inSeguros').value) || 0,
       abonoMensual: parseFloat(document.getElementById('inAbonoMensual').value) || 0,
-      abonoUnico: parseFloat(document.getElementById('inAbonoUnico').value.replace(/\./g, '')) || 0,
+      abonoUnico: parseFloat(document.getElementById('inAbonoUnico').value) || 0,
       abonoUnicoMes: parseInt(document.getElementById('inAbonoUnicoMes').value, 10) || 1,
       mesSube: parseInt(document.getElementById('inMesSube').value, 10) || 1,
       modo: document.querySelector('input[name="modo"]:checked').value
@@ -542,8 +608,13 @@
 
     // --- textos de sliders ---
     document.getElementById('valAbonoMensual').textContent = money(d.abonoMensual);
+    document.getElementById('valAbonoUnico').textContent = money(d.abonoUnico);
     document.getElementById('valAbonoUnicoMes').textContent = 'mes ' + d.abonoUnicoMes + ' (' + fechaTexto(d.abonoUnicoMes) + ')';
     document.getElementById('valMesSube').textContent = 'mes ' + d.mesSube + ' (' + fechaTexto(d.mesSube) + ')';
+
+    // --- escenario base ---
+    document.getElementById('valBaseCuando').textContent = fechaTexto(base.mesesTotales);
+    document.getElementById('valBaseIntereses').textContent = money(base.totalIntereses);
 
     // --- escenario pagar hoy ---
     document.getElementById('valPagoHoy').textContent = money(d.saldo);
@@ -684,13 +755,6 @@
   });
   document.querySelectorAll('input[name="modo"]').forEach(function (el) {
     el.addEventListener('change', render);
-  });
-
-  // Formatea el monto del abono único con puntos de miles mientras el usuario escribe.
-  const inAbonoUnico = document.getElementById('inAbonoUnico');
-  inAbonoUnico.addEventListener('input', function () {
-    const digitos = inAbonoUnico.value.replace(/\D/g, '');
-    inAbonoUnico.value = digitos ? Number(digitos).toLocaleString('es-CO') : '';
   });
 
   document.getElementById('btnContraste').addEventListener('click', function () {
