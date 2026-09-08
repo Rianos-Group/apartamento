@@ -195,24 +195,48 @@
     word-break: normal;
   }
 
-  .tabla-envoltorio { overflow-x: auto; margin-bottom: 1.5rem; }
+  .tabla-envoltorio {
+    overflow-x: auto;
+    margin-bottom: 0.5rem;
+    border: 2px solid #999999;
+    border-radius: 0.5rem;
+    /* Barra de desplazamiento siempre visible (no solo al pasar el mouse), para que se note que hay más tabla a los lados. */
+    scrollbar-width: auto;
+    scrollbar-color: #0072B2 #E0E0E0;
+  }
+  .tabla-envoltorio::-webkit-scrollbar { height: 1.1rem; }
+  .tabla-envoltorio::-webkit-scrollbar-track { background: #E0E0E0; }
+  .tabla-envoltorio::-webkit-scrollbar-thumb { background: #0072B2; border-radius: 0.5rem; border: 2px solid #E0E0E0; }
+  body.contraste .tabla-envoltorio { border-color: #555555; scrollbar-color: #66C2FF #333333; }
+  body.contraste .tabla-envoltorio::-webkit-scrollbar-track { background: #333333; }
+  body.contraste .tabla-envoltorio::-webkit-scrollbar-thumb { background: #66C2FF; border-color: #333333; }
+  .aviso-scroll {
+    font-weight: 700;
+    color: #0072B2;
+    margin: 0 0 0.5rem 0;
+  }
+  body.contraste .aviso-scroll { color: #66C2FF; }
   table.comparacion {
     border-collapse: collapse;
     width: 100%;
     min-width: 60rem;
     font-size: 1rem;
+    table-layout: fixed;
   }
   table.comparacion th, table.comparacion td {
     border: 1px solid #999999;
     padding: 0.9rem;
     text-align: left;
     vertical-align: top;
+    width: 12rem;
+    overflow-wrap: break-word;
   }
+  table.comparacion th:first-child, table.comparacion td:first-child { width: 9rem; }
   table.comparacion th { background: #E0E0E0; font-size: 1.05rem; }
   body.contraste table.comparacion th { background: #333333; }
   table.comparacion td ul { margin: 0; padding-left: 1.2rem; }
   table.comparacion td ul li { margin-bottom: 0.4rem; }
-  table.comparacion td.valor-destacado { font-weight: 700; font-size: 1.2rem; white-space: nowrap; }
+  table.comparacion td.valor-destacado { font-weight: 700; font-size: 1.2rem; }
 
   footer.disclaimer {
     max-width: 68rem; margin: 2rem auto 0 auto; padding: 1rem 1.25rem;
@@ -277,6 +301,7 @@
   </section>
 
   <h2>Comparación de las 3 opciones</h2>
+  <p class="aviso-scroll">← Deslice la tabla hacia los lados para ver todas las columnas →</p>
   <div class="tabla-envoltorio">
     <table class="comparacion">
       <thead>
@@ -359,8 +384,9 @@
     return { filas: filas, totalIntereses: totalIntereses, mesesTotales: mes, saldoFinal: saldo, noAmortiza: noAmortiza };
   }
 
+  // Redondea a la centena de mil (100.000) — en esta página los montos son grandes y aproximados, más fácil de leer así.
   function money(n) {
-    const entero = Math.round(Math.abs(n));
+    const entero = Math.round(Math.abs(n) / 100000) * 100000;
     const signo = n < 0 ? '-' : '';
     const grupos = [];
     let resto = String(entero);
