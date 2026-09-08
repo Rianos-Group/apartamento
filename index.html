@@ -253,6 +253,21 @@
   body.contraste .kpi-card { background: #10222E; border-color: #66C2FF; }
   .kpi-card.acento-mensual { background: #FFF6E5; border-color: #E69F00; }
   body.contraste .kpi-card.acento-mensual { background: #2C2200; border-color: #FFC85C; }
+  .kpi-card.acento-unico { background: #E9F7F2; border-color: #009E73; }
+  body.contraste .kpi-card.acento-unico { background: #00281D; border-color: #5CE0B8; }
+
+  .venta-filas { display: flex; flex-direction: column; gap: 1rem; margin: 1rem 0; }
+  .venta-fila {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #cccccc;
+  }
+  .venta-fila:last-child { border-bottom: none; padding-bottom: 0; }
+  body.contraste .venta-fila { border-bottom-color: #444444; }
+  .venta-fila .badge { margin-top: 0.35rem; flex-shrink: 0; }
+  .venta-fila p { margin: 0.2rem 0; }
   .kpi-card h3 { margin: 0 0 0.5rem 0; font-size: 1.15rem; }
   .kpi-valor {
     font-size: clamp(1.8rem, 8vw, 2.6rem); /* respaldo si el navegador no soporta unidades de contenedor */
@@ -452,6 +467,55 @@
     <p id="resumenTexto" style="font-size: 1.25rem; font-weight: 700; margin: 0;">—</p>
   </section>
 
+  <section class="panel" aria-label="Venta del apartamento en el futuro">
+    <h2>¿Y si vende el apartamento en unos años?</h2>
+    <p>Si el plan es vender antes de terminar de pagar, lo que realmente se ahorra abonando más no es la deuda completa, sino los <strong>intereses que se dejan de pagar</strong> hasta el momento de la venta (la plata que abona de más sigue siendo suya: baja lo que le debe al banco).</p>
+    <div class="campo">
+      <label for="inMesesVenta">¿En cuántos meses planea vender el apartamento?
+        <span class="valor-slider" id="valMesesVenta">24 meses (2 años)</span>
+      </label>
+      <input type="range" id="inMesesVenta" min="1" max="180" step="1" value="24">
+    </div>
+
+    <div class="venta-filas">
+      <div class="venta-fila">
+        <span class="badge badge-base"></span>
+        <div>
+          <strong>Cuota normal</strong>
+          <p>Le quedaría debiendo al banco: <span class="valor-slider txt-base" id="ventaBaseSaldo">—</span></p>
+          <p>Ya habría pagado en intereses: <span class="valor-slider txt-base" id="ventaBaseIntereses">—</span></p>
+        </div>
+      </div>
+      <div class="venta-fila">
+        <span class="badge badge-mensual"></span>
+        <div>
+          <strong>Abono mensual extra</strong>
+          <p>Le quedaría debiendo al banco: <span class="valor-slider txt-mensual" id="ventaMensualSaldo">—</span></p>
+          <p>Ya habría pagado en intereses: <span class="valor-slider txt-mensual" id="ventaMensualIntereses">—</span></p>
+        </div>
+      </div>
+      <div class="venta-fila">
+        <span class="badge badge-unico"></span>
+        <div>
+          <strong>Abono único</strong>
+          <p>Le quedaría debiendo al banco: <span class="valor-slider txt-unico" id="ventaUnicoSaldo">—</span></p>
+          <p>Ya habría pagado en intereses: <span class="valor-slider txt-unico" id="ventaUnicoIntereses">—</span></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi-card acento-mensual">
+        <h3>Ahorro en intereses con abono mensual, si vende en esa fecha</h3>
+        <div class="kpi-valor" id="ventaAhorroMensual">—</div>
+      </div>
+      <div class="kpi-card acento-unico">
+        <h3>Ahorro en intereses con abono único, si vende en esa fecha</h3>
+        <div class="kpi-valor" id="ventaAhorroUnico">—</div>
+      </div>
+    </div>
+  </section>
+
   <h2>Gráficas</h2>
   <p class="nota">Cada línea y cada barra usa el mismo color de la caja del escenario de arriba.</p>
   <div class="grafica" id="chartSaldo"></div>
@@ -623,6 +687,19 @@
     return partes.join(' y ');
   }
 
+  // Saldo pendiente e intereses ya pagados en un mes dado (por ejemplo, el mes en que se vendería el apartamento).
+  function acumuladoHasta(filas, mes) {
+    let interesAcumulado = 0;
+    let saldo = 0;
+    for (let i = 0; i < filas.length; i++) {
+      const f = filas[i];
+      if (f.mes > mes) break;
+      interesAcumulado += f.interes;
+      saldo = f.saldo;
+    }
+    return { interesAcumulado: interesAcumulado, saldo: saldo };
+  }
+
   // ---------- LECTURA DE CONTROLES ----------
 
   function leerEntradas() {
@@ -636,6 +713,7 @@
       abonoUnico: parseFloat(document.getElementById('inAbonoUnico').value) || 0,
       abonoUnicoMes: parseInt(document.getElementById('inAbonoUnicoMes').value, 10) || 1,
       mesSube: parseInt(document.getElementById('inMesSube').value, 10) || 1,
+      mesesVenta: parseInt(document.getElementById('inMesesVenta').value, 10) || 1,
       modo: document.querySelector('input[name="modo"]:checked').value
     };
   }
@@ -743,6 +821,26 @@
       resumen.textContent = 'Sin abonos extra, la deuda se paga en ' + fechaTexto(base.mesesTotales) +
         ' y en total se pagan ' + money(base.totalIntereses) + ' solo en intereses. Mueva el control de abono mensual para ver cuánto se ahorraría.';
     }
+
+    // --- venta del apartamento en unos años ---
+    document.getElementById('valMesesVenta').textContent =
+      d.mesesVenta + ' meses (' + duracionTexto(d.mesesVenta) + ') — ' + fechaTexto(d.mesesVenta);
+
+    const ventaBase = acumuladoHasta(base.filas, d.mesesVenta);
+    const ventaMensual = acumuladoHasta(escMensual.filas, d.mesesVenta);
+    const ventaUnico = acumuladoHasta(escUnico.filas, d.mesesVenta);
+
+    document.getElementById('ventaBaseSaldo').textContent = money(ventaBase.saldo);
+    document.getElementById('ventaBaseIntereses').textContent = money(ventaBase.interesAcumulado);
+    document.getElementById('ventaMensualSaldo').textContent = money(ventaMensual.saldo);
+    document.getElementById('ventaMensualIntereses').textContent = money(ventaMensual.interesAcumulado);
+    document.getElementById('ventaUnicoSaldo').textContent = money(ventaUnico.saldo);
+    document.getElementById('ventaUnicoIntereses').textContent = money(ventaUnico.interesAcumulado);
+
+    document.getElementById('ventaAhorroMensual').textContent =
+      money(ventaBase.interesAcumulado - ventaMensual.interesAcumulado);
+    document.getElementById('ventaAhorroUnico').textContent =
+      money(ventaBase.interesAcumulado - ventaUnico.interesAcumulado);
 
     dibujarGraficas(d, base, escMensual, escUnico);
     dibujarTablaAnual(escMensual, d.saldo);
