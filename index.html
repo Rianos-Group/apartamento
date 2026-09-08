@@ -138,7 +138,7 @@
   }
   body.contraste .credito-campo label { color: #AAAAAA; }
 
-  .credito-campo input[type=number], .credito-campo input[type=date] {
+  .credito-campo input[type=number], .credito-campo input[type=date], .credito-campo input[type=text] {
     border: none;
     border-bottom: 2px solid transparent;
     border-radius: 0;
@@ -150,12 +150,12 @@
     width: 100%;
     max-width: none;
   }
-  .credito-campo input[type=number]:focus, .credito-campo input[type=date]:focus {
+  .credito-campo input[type=number]:focus, .credito-campo input[type=date]:focus, .credito-campo input[type=text]:focus {
     outline: none;
     border-bottom-color: #0072B2;
   }
-  body.contraste .credito-campo input[type=number], body.contraste .credito-campo input[type=date] { color: #FFFFFF; }
-  body.contraste .credito-campo input[type=number]:focus, body.contraste .credito-campo input[type=date]:focus { border-bottom-color: #66C2FF; }
+  body.contraste .credito-campo input[type=number], body.contraste .credito-campo input[type=date], body.contraste .credito-campo input[type=text] { color: #FFFFFF; }
+  body.contraste .credito-campo input[type=number]:focus, body.contraste .credito-campo input[type=date]:focus, body.contraste .credito-campo input[type=text]:focus { border-bottom-color: #66C2FF; }
 
   .credito-nota { color: #0072B2; font-style: italic; margin: 1rem 0 0 0; }
   body.contraste .credito-nota { color: #66C2FF; }
@@ -318,11 +318,11 @@
     <div class="credito-fila">
       <div class="credito-campo campo">
         <label for="inSaldo">Saldo actual de la deuda (COP)</label>
-        <input type="number" id="inSaldo" value="254090608.41" step="1" min="0">
+        <input type="text" inputmode="numeric" id="inSaldo" value="254'090.608">
       </div>
       <div class="credito-campo campo">
         <label for="inCuota">Cuota mensual (canon) (COP)</label>
-        <input type="number" id="inCuota" value="3441000" step="1000" min="0">
+        <input type="text" inputmode="numeric" id="inCuota" value="3'441.000">
       </div>
     </div>
     <div class="credito-fila">
@@ -338,7 +338,7 @@
     <div class="credito-fila credito-fila-ultima">
       <div class="credito-campo campo">
         <label for="inSeguros">Seguros y gastos administrativos mensuales (COP) — supuesto</label>
-        <input type="number" id="inSeguros" value="0" step="1000" min="0">
+        <input type="text" inputmode="numeric" id="inSeguros" value="0">
       </div>
       <div class="credito-campo campo">
         <label for="inFecha">Fecha del próximo pago</label>
@@ -627,11 +627,11 @@
 
   function leerEntradas() {
     return {
-      saldo: parseFloat(document.getElementById('inSaldo').value) || 0,
-      cuota: parseFloat(document.getElementById('inCuota').value) || 0,
+      saldo: parseFloat(document.getElementById('inSaldo').value.replace(/[.']/g, '')) || 0,
+      cuota: parseFloat(document.getElementById('inCuota').value.replace(/[.']/g, '')) || 0,
       tasaCobrada: (parseFloat(document.getElementById('inTasaCobrada').value) || 0) / 100,
       tasaPactada: (parseFloat(document.getElementById('inTasaPactada').value) || 0) / 100,
-      seguros: parseFloat(document.getElementById('inSeguros').value) || 0,
+      seguros: parseFloat(document.getElementById('inSeguros').value.replace(/[.']/g, '')) || 0,
       abonoMensual: parseFloat(document.getElementById('inAbonoMensual').value) || 0,
       abonoUnico: parseFloat(document.getElementById('inAbonoUnico').value) || 0,
       abonoUnicoMes: parseInt(document.getElementById('inAbonoUnicoMes').value, 10) || 1,
@@ -840,6 +840,14 @@
   });
   document.querySelectorAll('input[name="modo"]').forEach(function (el) {
     el.addEventListener('change', render);
+  });
+
+  // Formatea con separadores colombianos mientras el usuario escribe (peso, saldo, seguros).
+  ['inSaldo', 'inCuota', 'inSeguros'].forEach(function (id) {
+    document.getElementById(id).addEventListener('input', function () {
+      const digitos = this.value.replace(/[^\d]/g, '');
+      this.value = digitos ? money(Number(digitos)).replace('$', '') : '';
+    });
   });
 
   document.getElementById('btnContraste').addEventListener('click', function () {
