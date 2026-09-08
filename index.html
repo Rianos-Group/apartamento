@@ -106,6 +106,60 @@
     border-color: #999999;
   }
 
+  .credito-card {
+    background: #FFFFFF;
+    border: 1px solid #E0E0E0;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  body.contraste .credito-card { background: #161616; border-color: #3A3A3A; }
+
+  .credito-fila {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 2rem;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid #E0E0E0;
+  }
+  .credito-fila:first-of-type { padding-top: 0; }
+  .credito-fila.credito-fila-ultima { border-bottom: none; }
+  body.contraste .credito-fila { border-bottom-color: #3A3A3A; }
+  @media (max-width: 40rem) {
+    .credito-fila { grid-template-columns: 1fr; }
+  }
+
+  .credito-campo label {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #666666;
+    margin-bottom: 0.35rem;
+  }
+  body.contraste .credito-campo label { color: #AAAAAA; }
+
+  .credito-campo input[type=number], .credito-campo input[type=date] {
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    background: transparent;
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: #111111;
+    padding: 0.15rem 0;
+    width: 100%;
+    max-width: none;
+  }
+  .credito-campo input[type=number]:focus, .credito-campo input[type=date]:focus {
+    outline: none;
+    border-bottom-color: #0072B2;
+  }
+  body.contraste .credito-campo input[type=number], body.contraste .credito-campo input[type=date] { color: #FFFFFF; }
+  body.contraste .credito-campo input[type=number]:focus, body.contraste .credito-campo input[type=date]:focus { border-bottom-color: #66C2FF; }
+
+  .credito-nota { color: #0072B2; font-style: italic; margin: 1rem 0 0 0; }
+  body.contraste .credito-nota { color: #66C2FF; }
+
   .valor-slider {
     font-size: 1.6rem;
     font-weight: 700;
@@ -186,7 +240,7 @@
 
   .barra-botones { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 1rem 0; }
 
-  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1rem; margin: 1rem 0 2rem 0; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); gap: 1rem; margin: 1rem 0 2rem 0; }
   .kpi-card {
     border-radius: 0.75rem;
     padding: 1.25rem;
@@ -194,17 +248,19 @@
     border: 3px solid #0072B2;
     min-width: 0;
     overflow: hidden;
+    container-type: inline-size;
   }
   body.contraste .kpi-card { background: #10222E; border-color: #66C2FF; }
   .kpi-card.acento-mensual { background: #FFF6E5; border-color: #E69F00; }
   body.contraste .kpi-card.acento-mensual { background: #2C2200; border-color: #FFC85C; }
   .kpi-card h3 { margin: 0 0 0.5rem 0; font-size: 1.15rem; }
   .kpi-valor {
-    font-size: 2.6rem;
+    font-size: clamp(1.8rem, 8vw, 2.6rem); /* respaldo si el navegador no soporta unidades de contenedor */
+    font-size: clamp(1.8rem, 13cqw, 2.6rem); /* el número se ajusta al ancho real de la caja, sin cortarse */
     font-weight: 700;
     line-height: 1.15;
     overflow-wrap: break-word;
-    word-break: break-word;
+    word-break: normal;
   }
 
   .warning-card {
@@ -257,33 +313,39 @@
 
 <main>
 
-  <section class="panel" aria-label="Datos del crédito">
+  <section class="credito-card" aria-label="Datos del crédito">
     <h2>Datos del crédito (edite si cambian)</h2>
-    <div class="campo">
-      <label for="inSaldo">Saldo actual de la deuda (COP)</label>
-      <input type="number" id="inSaldo" value="254090608.41" step="1" min="0">
+    <div class="credito-fila">
+      <div class="credito-campo campo">
+        <label for="inSaldo">Saldo actual de la deuda (COP)</label>
+        <input type="number" id="inSaldo" value="254090608.41" step="1" min="0">
+      </div>
+      <div class="credito-campo campo">
+        <label for="inCuota">Cuota mensual (canon) (COP)</label>
+        <input type="number" id="inCuota" value="3441000" step="1000" min="0">
+      </div>
     </div>
-    <div class="campo">
-      <label for="inCuota">Cuota mensual (canon) (COP)</label>
-      <input type="number" id="inCuota" value="3441000" step="1000" min="0">
+    <div class="credito-fila">
+      <div class="credito-campo campo">
+        <label for="inTasaCobrada">Tasa de interés cobrada hoy (% Efectivo Anual)</label>
+        <input type="number" id="inTasaCobrada" value="13.00" step="0.01" min="0">
+      </div>
+      <div class="credito-campo campo">
+        <label for="inTasaPactada">Tasa de interés pactada en el contrato (% Efectivo Anual)</label>
+        <input type="number" id="inTasaPactada" value="20.98" step="0.01" min="0">
+      </div>
     </div>
-    <div class="campo">
-      <label for="inTasaCobrada">Tasa de interés cobrada hoy (% Efectivo Anual)</label>
-      <input type="number" id="inTasaCobrada" value="13.00" step="0.01" min="0">
+    <div class="credito-fila credito-fila-ultima">
+      <div class="credito-campo campo">
+        <label for="inSeguros">Seguros y gastos administrativos mensuales (COP) — supuesto</label>
+        <input type="number" id="inSeguros" value="0" step="1000" min="0">
+      </div>
+      <div class="credito-campo campo">
+        <label for="inFecha">Fecha del próximo pago</label>
+        <input type="date" id="inFecha" value="2026-09-08">
+      </div>
     </div>
-    <div class="campo">
-      <label for="inTasaPactada">Tasa de interés pactada en el contrato (% Efectivo Anual)</label>
-      <input type="number" id="inTasaPactada" value="20.98" step="0.01" min="0">
-    </div>
-    <div class="campo">
-      <label for="inSeguros">Seguros y gastos administrativos mensuales (COP) — supuesto</label>
-      <input type="number" id="inSeguros" value="0" step="1000" min="0">
-    </div>
-    <div class="campo">
-      <label for="inFecha">Fecha del próximo pago</label>
-      <input type="date" id="inFecha" value="2026-09-08">
-    </div>
-    <p class="nota">Referencia del contrato: plazo total 180 meses, cánones pagados 30, cánones pendientes según el banco 150, opción de compra 0.00%. El simulador calcula el plazo real según la tasa cobrada, por eso puede diferir de los 150 meses del banco.</p>
+    <p class="nota credito-nota">Referencia del contrato: plazo total 180 meses, cánones pagados 30, cánones pendientes según el banco 150, opción de compra 0.00%. El simulador calcula el plazo real según la tasa cobrada, por eso puede diferir de los 150 meses del banco.</p>
   </section>
 
   <section class="panel" aria-label="Cómo se aplica el abono extra">
