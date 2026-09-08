@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador del apartamento — ¿Qué pasa si abonamos más?</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/4.0.0/plotly.min.js"></script>
+<style>
+  html { font-size: 20px; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 0 0 4rem 0;
+    font-family: -apple-system, "Segoe UI", Arial, sans-serif;
+    font-size: 1.1rem; /* ~22px */
+    line-height: 1.5;
+    color: #111111;
+    background: #FFFFFF;
+    font-weight: 500;
+  }
+  body.contraste {
+    color: #FFFFFF;
+    background: #0B0B0B;
+  }
+  a { color: #0072B2; }
+  body.contraste a { color: #66C2FF; }
+
+  header {
+    padding: 1.5rem 1.25rem 1rem 1.25rem;
+    max-width: 60rem;
+    margin: 0 auto;
+  }
+  h1 { font-size: 1.9rem; margin: 0 0 0.5rem 0; }
+  h2 { font-size: 1.7rem; margin: 2rem 0 0.75rem 0; }
+  h3 { font-size: 1.4rem; margin: 1rem 0 0.5rem 0; }
+  .intro { font-size: 1.1rem; }
+
+  main { max-width: 60rem; margin: 0 auto; padding: 0 1.25rem; }
+
+  section.panel {
+    border: 2px solid #cccccc;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    background: #FAFAFA;
+  }
+  body.contraste section.panel {
+    border-color: #444444;
+    background: #1A1A1A;
+  }
+
+  .campo { margin-bottom: 1.1rem; }
+  label { display: block; font-weight: 700; margin-bottom: 0.35rem; }
+  input[type=number], input[type=date] {
+    font-size: 1.1rem;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    border: 2px solid #888888;
+    width: 100%;
+    max-width: 20rem;
+    font-weight: 500;
+    background: #FFFFFF;
+    color: #111111;
+  }
+  body.contraste input[type=number], body.contraste input[type=date] {
+    background: #222222;
+    color: #FFFFFF;
+    border-color: #999999;
+  }
+
+  .valor-slider {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #0072B2;
+    display: inline-block;
+    margin-left: 0.5rem;
+  }
+  body.contraste .valor-slider { color: #66C2FF; }
+
+  input[type=range] {
+    width: 100%;
+    height: 2.5rem;
+    -webkit-appearance: none;
+    background: transparent;
+    margin: 0.75rem 0;
+  }
+  input[type=range]::-webkit-slider-runnable-track {
+    height: 0.6rem;
+    border-radius: 0.3rem;
+    background: #cccccc;
+  }
+  body.contraste input[type=range]::-webkit-slider-runnable-track { background: #555555; }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 50%;
+    background: #0072B2;
+    border: 3px solid #FFFFFF;
+    margin-top: -0.8rem;
+    cursor: pointer;
+  }
+  input[type=range]::-moz-range-track {
+    height: 0.6rem;
+    border-radius: 0.3rem;
+    background: #cccccc;
+  }
+  input[type=range]::-moz-range-thumb {
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 50%;
+    background: #0072B2;
+    border: 3px solid #FFFFFF;
+    cursor: pointer;
+  }
+
+  fieldset { border: 2px solid #888888; border-radius: 0.5rem; padding: 1rem; margin: 0 0 1rem 0; }
+  legend { font-weight: 700; padding: 0 0.5rem; font-size: 1.15rem; }
+  .opcion-radio { display: flex; align-items: flex-start; gap: 0.6rem; margin-bottom: 0.9rem; font-weight: 500; }
+  .opcion-radio input { width: 1.6rem; height: 1.6rem; margin-top: 0.2rem; flex-shrink: 0; }
+  .nota { font-size: 0.95rem; font-style: italic; }
+
+  button {
+    font-size: 1.1rem;
+    font-weight: 700;
+    padding: 0.85rem 1.25rem;
+    border-radius: 0.6rem;
+    border: 2px solid #0072B2;
+    background: #0072B2;
+    color: #FFFFFF;
+    cursor: pointer;
+    min-height: 3rem;
+  }
+  button:hover { background: #005a8c; }
+  button.secundario {
+    background: #FFFFFF;
+    color: #0072B2;
+  }
+  body.contraste button.secundario { background: #0B0B0B; color: #66C2FF; border-color: #66C2FF; }
+
+  .barra-botones { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 1rem 0; }
+
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 1rem; margin: 1rem 0 2rem 0; }
+  .kpi-card {
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    background: #EAF4FB;
+    border: 3px solid #0072B2;
+  }
+  body.contraste .kpi-card { background: #10222E; border-color: #66C2FF; }
+  .kpi-card h3 { margin: 0 0 0.5rem 0; font-size: 1.15rem; }
+  .kpi-valor { font-size: 2.6rem; font-weight: 700; line-height: 1.1; }
+
+  .warning-card {
+    border: 4px solid #D55E00;
+    background: #FFF1E6;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #7a2f00;
+  }
+  body.contraste .warning-card { background: #2B1400; color: #FFD3AE; }
+  .warning-card .titulo { font-size: 1.5rem; display: block; margin-bottom: 0.5rem; }
+
+  .grafica { margin-bottom: 2rem; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 1rem; }
+  th, td { border: 1px solid #999999; padding: 0.6rem; text-align: right; }
+  th:first-child, td:first-child { text-align: left; }
+  th { background: #E0E0E0; }
+  body.contraste th { background: #333333; }
+
+  details > summary { font-size: 1.3rem; font-weight: 700; cursor: pointer; padding: 0.5rem 0; }
+
+  footer.disclaimer {
+    max-width: 60rem; margin: 2rem auto 0 auto; padding: 1rem 1.25rem;
+    font-size: 0.95rem; border-top: 2px solid #cccccc;
+  }
+
+  @media print {
+    button, .barra-botones, #btnContraste, input[type=range], details > summary + * button { }
+    .no-imprimir { display: none !important; }
+    body { color: #000000; background: #FFFFFF; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Simulador del apartamento — ¿Qué pasa si abonamos más?</h1>
+  <p class="intro">
+    Esta página ayuda a comparar, en pesos y en meses, qué pasa con la deuda del apartamento si pagamos la cuota normal,
+    si abonamos algo extra cada mes, si hacemos un abono grande una sola vez, o si pagamos todo hoy.
+    Los datos de partida vienen del extracto de Davivienda con fecha 08/09/2026. Puede cambiar cualquier valor abajo si el banco lo actualiza.
+  </p>
+  <div class="barra-botones no-imprimir">
+    <button id="btnContraste" class="secundario" type="button">Modo alto contraste</button>
+  </div>
+</header>
+
+<main>
+
+  <section class="panel" aria-label="Datos del crédito">
+    <h2>Datos del crédito (edite si cambian)</h2>
+    <div class="campo">
+      <label for="inSaldo">Saldo actual de la deuda (COP)</label>
+      <input type="number" id="inSaldo" value="254090608.41" step="1" min="0">
+    </div>
+    <div class="campo">
+      <label for="inCuota">Cuota mensual (canon) (COP)</label>
+      <input type="number" id="inCuota" value="3441000" step="1000" min="0">
+    </div>
+    <div class="campo">
+      <label for="inTasaCobrada">Tasa de interés cobrada hoy (% Efectivo Anual)</label>
+      <input type="number" id="inTasaCobrada" value="13.00" step="0.01" min="0">
+    </div>
+    <div class="campo">
+      <label for="inTasaPactada">Tasa de interés pactada en el contrato (% Efectivo Anual)</label>
+      <input type="number" id="inTasaPactada" value="20.98" step="0.01" min="0">
+    </div>
+    <div class="campo">
+      <label for="inSeguros">Seguros y gastos administrativos mensuales (COP) — supuesto</label>
+      <input type="number" id="inSeguros" value="0" step="1000" min="0">
+    </div>
+    <div class="campo">
+      <label for="inFecha">Fecha del próximo pago</label>
+      <input type="date" id="inFecha" value="2026-09-08">
+    </div>
+    <p class="nota">Referencia del contrato: plazo total 180 meses, cánones pagados 30, cánones pendientes según el banco 150, opción de compra 0.00%. El simulador calcula el plazo real según la tasa cobrada, por eso puede diferir de los 150 meses del banco.</p>
+  </section>
+
+  <section class="panel" aria-label="Cómo se aplica el abono extra">
+    <h2>¿Qué hace el banco con su abono extra?</h2>
+    <p>Un <strong>abono a capital</strong> es una plata que usted paga de más y que se descuenta directamente de la deuda, no de los intereses. El banco le da a escoger qué hacer con ese abono:</p>
+    <fieldset>
+      <legend>Elija una opción (aplica a los dos escenarios de abono de abajo)</legend>
+      <div class="opcion-radio">
+        <input type="radio" name="modo" id="modoPlazo" value="plazo" checked>
+        <label for="modoPlazo" style="margin:0;">Disminuir el PLAZO: la cuota sigue igual, pero termina de pagar antes.
+          <span class="nota">(Así lo aplica Davivienda si usted no le dice lo contrario.)</span>
+        </label>
+      </div>
+      <div class="opcion-radio">
+        <input type="radio" name="modo" id="modoCuota" value="cuota">
+        <label for="modoCuota" style="margin:0;">Disminuir la CUOTA: el plazo sigue igual, pero la cuota mensual baja.</label>
+      </div>
+    </fieldset>
+  </section>
+
+  <section class="panel" aria-label="Escenario abono mensual extra">
+    <h2>Escenario: abono mensual extra</h2>
+    <div class="campo">
+      <label for="inAbonoMensual">¿Cuánto abona de más cada mes?
+        <span class="valor-slider" id="valAbonoMensual">$500.000</span>
+      </label>
+      <input type="range" id="inAbonoMensual" min="0" max="5000000" step="100000" value="500000">
+    </div>
+  </section>
+
+  <section class="panel" aria-label="Escenario abono único">
+    <h2>Escenario: abono único grande (una sola vez)</h2>
+    <p class="nota">Por ejemplo una prima o un ahorro que usa una sola vez para pagar capital.</p>
+    <div class="campo">
+      <label for="inAbonoUnico">Monto del abono único (COP)</label>
+      <input type="text" inputmode="numeric" id="inAbonoUnico" value="10.000.000">
+    </div>
+    <div class="campo">
+      <label for="inAbonoUnicoMes">¿En qué mes lo haría? (1 = el próximo pago, 08/09/2026)
+        <span class="valor-slider" id="valAbonoUnicoMes">mes 12</span>
+      </label>
+      <input type="range" id="inAbonoUnicoMes" min="1" max="150" step="1" value="12">
+    </div>
+  </section>
+
+  <section class="panel" aria-label="Escenario pagar toda la deuda hoy">
+    <h2>Escenario: pagar toda la deuda hoy</h2>
+    <p>Valor para cancelar la deuda hoy: <strong id="valPagoHoy">$0</strong></p>
+    <p>Intereses futuros que se evitarían: <strong id="valAhorroPagoHoy">$0</strong></p>
+  </section>
+
+  <section class="panel" aria-label="Riesgo de subida de tasa">
+    <h2>¿Y si se acaba la cobertura de tasa?</h2>
+    <p>El extracto muestra una tasa <strong>pactada</strong> de 20.98% E.A., pero hoy solo se cobra el 13% E.A. (un subsidio que dura un número limitado de años). Elija el mes en el que imagina que la tasa podría subir al 20.98%:</p>
+    <div class="campo">
+      <label for="inMesSube">Mes en el que sube la tasa
+        <span class="valor-slider" id="valMesSube">mes 60</span>
+      </label>
+      <input type="range" id="inMesSube" min="1" max="150" step="1" value="60">
+    </div>
+    <div class="warning-card" id="tarjetaRiesgo" role="alert">
+      <span class="titulo">Cargando…</span>
+    </div>
+  </section>
+
+  <h2>Resultados del escenario "abono mensual extra"</h2>
+  <div class="kpis">
+    <div class="kpi-card">
+      <h3>Cuándo termina de pagar</h3>
+      <div class="kpi-valor" id="kpiCuando">—</div>
+    </div>
+    <div class="kpi-card">
+      <h3>Intereses totales que pagará</h3>
+      <div class="kpi-valor" id="kpiIntereses">—</div>
+    </div>
+    <div class="kpi-card">
+      <h3>Cuánto se ahorra vs. la cuota normal</h3>
+      <div class="kpi-valor" id="kpiAhorro">—</div>
+    </div>
+    <div class="kpi-card">
+      <h3>Cuántos meses se ahorra</h3>
+      <div class="kpi-valor" id="kpiMeses">—</div>
+    </div>
+  </div>
+
+  <section aria-label="resumen en palabras">
+    <p id="resumenTexto" style="font-size: 1.25rem; font-weight: 700;">—</p>
+  </section>
+
+  <h2>Gráficas</h2>
+  <div class="grafica" id="chartSaldo"></div>
+  <div class="grafica" id="chartComposicion"></div>
+  <div class="grafica" id="chartBarras"></div>
+
+  <details id="detalleTabla">
+    <summary>Tabla de amortización por año (escenario "abono mensual extra")</summary>
+    <div style="overflow-x:auto;">
+      <table id="tablaAnual">
+        <thead>
+          <tr><th>Año</th><th>Saldo inicial</th><th>Intereses pagados</th><th>Abono a capital</th><th>Saldo final</th></tr>
+        </thead>
+        <tbody id="tablaAnualBody"></tbody>
+      </table>
+    </div>
+    <div class="barra-botones no-imprimir">
+      <button id="btnCSV" type="button">Descargar tabla en CSV</button>
+    </div>
+  </details>
+
+  <div class="barra-botones no-imprimir">
+    <button id="btnImprimir" class="secundario" type="button">Imprimir / Guardar como PDF</button>
+  </div>
+
+</main>
+
+<footer class="disclaimer">
+  Estimación educativa basada en el extracto del 08/09/2026. Las cifras reales pueden variar por seguros, fechas de pago y decisiones del banco.
+  Confirme siempre con Davivienda antes de tomar una decisión.
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  // ---------- MOTOR FINANCIERO ----------
+
+  function tasaMensual(tasaEA) {
+    return Math.pow(1 + tasaEA, 1 / 12) - 1;
+  }
+
+  function cuotaAnualidad(saldo, r, n) {
+    if (n <= 0) return saldo;
+    if (Math.abs(r) < 1e-12) return saldo / n;
+    return saldo * r / (1 - Math.pow(1 + r, -n));
+  }
+
+  // Motor genérico de amortización.
+  function simular(opts) {
+    const maxIter = opts.maxIter || 600;
+    let saldo = opts.saldoInicial;
+    let cuota = opts.cuotaInicial;
+    let mesesPlan = opts.mesesPlanInicial != null ? opts.mesesPlanInicial : null;
+    const filas = [];
+    let totalIntereses = 0;
+    let mes = 0;
+    let noAmortiza = false;
+
+    while (saldo > 0.5 && mes < maxIter) {
+      mes++;
+      const r = opts.rateFn(mes);
+      const interes = saldo * r;
+      const extra = opts.extraFn(mes);
+
+      if (cuota + extra <= interes) {
+        noAmortiza = true;
+        break;
+      }
+
+      let abonoCapital = cuota + extra - interes;
+      let pago = cuota + extra;
+      if (abonoCapital >= saldo) {
+        abonoCapital = saldo;
+        pago = abonoCapital + interes;
+      }
+      saldo = Math.max(saldo - abonoCapital, 0);
+      totalIntereses += interes;
+      filas.push({ mes: mes, interes: interes, abonoCapital: abonoCapital, pago: pago, saldo: saldo, cuota: cuota });
+
+      if (opts.modo === 'cuota' && mesesPlan != null && saldo > 0.5) {
+        mesesPlan = Math.max(mesesPlan - 1, 1);
+        cuota = cuotaAnualidad(saldo, opts.rateFn(mes + 1), mesesPlan);
+      }
+    }
+
+    return { filas: filas, totalIntereses: totalIntereses, mesesTotales: mes, saldoFinal: saldo, noAmortiza: noAmortiza };
+  }
+
+  // ---------- AUTOCOMPROBACIÓN (consola) ----------
+
+  function autocomprobar() {
+    const saldoRef = 254090608.41;
+    const cuotaRef = 3441000;
+    const rRef = tasaMensual(0.13);
+    const casos = [
+      { extra: 0, meses: 139, intereses: 222364788 },
+      { extra: 300000, meses: 117, intereses: 182427113 },
+      { extra: 500000, meses: 106, intereses: 163362688 },
+      { extra: 1000000, meses: 87, intereses: 130137983 },
+      { extra: 2000000, meses: 64, intereses: 93261917 }
+    ];
+    console.log('--- Autocomprobación del simulador de leasing ---');
+    let todosOk = true;
+    casos.forEach(function (c) {
+      const res = simular({
+        saldoInicial: saldoRef,
+        cuotaInicial: cuotaRef,
+        rateFn: function () { return rRef; },
+        extraFn: function () { return c.extra; },
+        modo: 'plazo'
+      });
+      const okMeses = res.mesesTotales === c.meses;
+      const okInt = Math.abs(res.totalIntereses - c.intereses) <= 3000;
+      const ok = okMeses && okInt;
+      if (!ok) todosOk = false;
+      console.log(
+        (ok ? 'PASS' : 'FAIL') + ' abono=' + c.extra +
+        ' meses=' + res.mesesTotales + ' (esperado ' + c.meses + ')' +
+        ' intereses=' + Math.round(res.totalIntereses) + ' (esperado ' + c.intereses + ')'
+      );
+    });
+    console.log(todosOk ? 'Autocomprobación: TODO OK' : 'Autocomprobación: HAY ERRORES');
+  }
+
+  // ---------- FORMATO ----------
+
+  function money(n) {
+    return '$' + Math.round(n).toLocaleString('es-CO');
+  }
+
+  function fechaBase() {
+    const v = document.getElementById('inFecha').value;
+    const partes = v.split('-').map(Number);
+    return new Date(partes[0], partes[1] - 1, partes[2]);
+  }
+
+  function fechaDeMes(mesIndex) {
+    const base = fechaBase();
+    const d = new Date(base.getFullYear(), base.getMonth() + (mesIndex - 1), base.getDate());
+    return d;
+  }
+
+  function fechaTexto(mesIndex) {
+    return fechaDeMes(mesIndex).toLocaleDateString('es-CO', { month: 'long', year: 'numeric' });
+  }
+
+  function duracionTexto(meses) {
+    const anos = Math.floor(meses / 12);
+    const resto = meses % 12;
+    const partes = [];
+    if (anos > 0) partes.push(anos + (anos === 1 ? ' año' : ' años'));
+    if (resto > 0 || anos === 0) partes.push(resto + (resto === 1 ? ' mes' : ' meses'));
+    return partes.join(' y ');
+  }
+
+  // ---------- LECTURA DE CONTROLES ----------
+
+  function leerEntradas() {
+    return {
+      saldo: parseFloat(document.getElementById('inSaldo').value) || 0,
+      cuota: parseFloat(document.getElementById('inCuota').value) || 0,
+      tasaCobrada: (parseFloat(document.getElementById('inTasaCobrada').value) || 0) / 100,
+      tasaPactada: (parseFloat(document.getElementById('inTasaPactada').value) || 0) / 100,
+      seguros: parseFloat(document.getElementById('inSeguros').value) || 0,
+      abonoMensual: parseFloat(document.getElementById('inAbonoMensual').value) || 0,
+      abonoUnico: parseFloat(document.getElementById('inAbonoUnico').value.replace(/\./g, '')) || 0,
+      abonoUnicoMes: parseInt(document.getElementById('inAbonoUnicoMes').value, 10) || 1,
+      mesSube: parseInt(document.getElementById('inMesSube').value, 10) || 1,
+      modo: document.querySelector('input[name="modo"]:checked').value
+    };
+  }
+
+  // ---------- COLORES (seguros para daltonismo) ----------
+
+  const COLOR_BASE = '#0072B2';
+  const COLOR_MENSUAL = '#E69F00';
+  const COLOR_UNICO = '#009E73';
+  const COLOR_RIESGO = '#D55E00';
+  const COLOR_ROSA = '#CC79A7';
+
+  const EJES_FUENTE = { size: 18 };
+
+  // ---------- RENDER ----------
+
+  function render() {
+    const d = leerEntradas();
+    const rCobrada = tasaMensual(d.tasaCobrada);
+    const rPactada = tasaMensual(d.tasaPactada);
+
+    const base = simular({
+      saldoInicial: d.saldo,
+      cuotaInicial: d.cuota,
+      rateFn: function () { return rCobrada; },
+      extraFn: function () { return 0; },
+      modo: 'plazo'
+    });
+
+    const escMensual = simular({
+      saldoInicial: d.saldo,
+      cuotaInicial: d.cuota,
+      rateFn: function () { return rCobrada; },
+      extraFn: function () { return d.abonoMensual; },
+      modo: d.modo,
+      mesesPlanInicial: d.modo === 'cuota' ? base.mesesTotales : null
+    });
+
+    const escUnico = simular({
+      saldoInicial: d.saldo,
+      cuotaInicial: d.cuota,
+      rateFn: function () { return rCobrada; },
+      extraFn: function (mes) { return mes === d.abonoUnicoMes ? d.abonoUnico : 0; },
+      modo: d.modo,
+      mesesPlanInicial: d.modo === 'cuota' ? base.mesesTotales : null
+    });
+
+    const escRiesgo = simular({
+      saldoInicial: d.saldo,
+      cuotaInicial: d.cuota,
+      rateFn: function (mes) { return mes < d.mesSube ? rCobrada : rPactada; },
+      extraFn: function () { return 0; },
+      modo: 'plazo'
+    });
+
+    // --- textos de sliders ---
+    document.getElementById('valAbonoMensual').textContent = money(d.abonoMensual);
+    document.getElementById('valAbonoUnicoMes').textContent = 'mes ' + d.abonoUnicoMes + ' (' + fechaTexto(d.abonoUnicoMes) + ')';
+    document.getElementById('valMesSube').textContent = 'mes ' + d.mesSube + ' (' + fechaTexto(d.mesSube) + ')';
+
+    // --- escenario pagar hoy ---
+    document.getElementById('valPagoHoy').textContent = money(d.saldo);
+    document.getElementById('valAhorroPagoHoy').textContent = money(base.totalIntereses);
+
+    // --- tarjeta de riesgo ---
+    const tarjeta = document.getElementById('tarjetaRiesgo');
+    if (escRiesgo.noAmortiza) {
+      const interesEseMes = escRiesgo.saldoFinal * rPactada;
+      const faltante = interesEseMes - d.cuota;
+      tarjeta.innerHTML =
+        '<span class="titulo">⚠ Riesgo importante: la deuda podría dejar de bajar</span>' +
+        'Si la tasa sube al ' + (d.tasaPactada * 100).toFixed(2) + '% E.A. en ' + fechaTexto(d.mesSube) +
+        ', el saldo estimado sería de ' + money(escRiesgo.saldoFinal) + ' y solo los intereses de ese mes serían ' +
+        money(interesEseMes) + ', más que la cuota de ' + money(d.cuota) + '. ' +
+        'Faltarían ' + money(faltante) + ' cada mes solo para cubrir intereses: la deuda ' +
+        '<u>crecería en vez de bajar</u>. Esto no es una predicción, es una alerta para preguntarle al banco cuánto dura el subsidio de tasa.';
+    } else {
+      tarjeta.innerHTML =
+        '<span class="titulo">Con estos datos, la deuda ya estaría pagada antes de esa fecha</span>' +
+        'Bajo la tasa actual del ' + (d.tasaCobrada * 100).toFixed(2) + '% E.A., la deuda se terminaría de pagar en ' +
+        fechaTexto(base.mesesTotales) + ', antes del mes ' + d.mesSube + ' que eligió. Aun así, confirme con el banco ' +
+        'cuántos años dura la tasa preferencial, porque si sube antes de lo esperado, la cuota de ' + money(d.cuota) +
+        ' podría no alcanzar a cubrir los intereses.';
+    }
+
+    // --- KPIs (escenario abono mensual) ---
+    document.getElementById('kpiCuando').textContent = fechaTexto(escMensual.mesesTotales);
+    document.getElementById('kpiIntereses').textContent = money(escMensual.totalIntereses);
+    document.getElementById('kpiAhorro').textContent = money(base.totalIntereses - escMensual.totalIntereses);
+    document.getElementById('kpiMeses').textContent = (base.mesesTotales - escMensual.mesesTotales) + ' meses';
+
+    // --- resumen en palabras ---
+    const resumen = document.getElementById('resumenTexto');
+    if (d.abonoMensual > 0) {
+      resumen.textContent =
+        'Si abona ' + money(d.abonoMensual) + ' más cada mes, termina de pagar en ' + fechaTexto(escMensual.mesesTotales) +
+        ' en vez de ' + fechaTexto(base.mesesTotales) + ', y se ahorra ' + money(base.totalIntereses - escMensual.totalIntereses) +
+        ' en intereses (' + (base.mesesTotales - escMensual.mesesTotales) + ' meses menos de pagos).';
+    } else {
+      resumen.textContent = 'Sin abonos extra, la deuda se paga en ' + fechaTexto(base.mesesTotales) +
+        ' y en total se pagan ' + money(base.totalIntereses) + ' solo en intereses. Mueva el control de abono mensual para ver cuánto se ahorraría.';
+    }
+
+    dibujarGraficas(d, base, escMensual, escUnico);
+    dibujarTablaAnual(escMensual, d.saldo);
+  }
+
+  // ---------- GRÁFICAS ----------
+
+  function serieSaldo(filas, saldoInicial) {
+    const x = [0], y = [saldoInicial];
+    filas.forEach(function (f) { x.push(f.mes); y.push(f.saldo); });
+    return { x: x, y: y };
+  }
+
+  function dibujarGraficas(d, base, escMensual, escUnico) {
+    const layoutComun = {
+      font: { size: 18 },
+      xaxis: { title: 'Mes', tickfont: EJES_FUENTE, titlefont: EJES_FUENTE },
+      yaxis: { tickfont: EJES_FUENTE, titlefont: EJES_FUENTE },
+      legend: { font: { size: 18 } },
+      margin: { t: 40, r: 20, l: 70, b: 60 }
+    };
+
+    const sBase = serieSaldo(base.filas, d.saldo);
+    const sMensual = serieSaldo(escMensual.filas, d.saldo);
+    const sUnico = serieSaldo(escUnico.filas, d.saldo);
+
+    Plotly.newPlot('chartSaldo', [
+      { x: sBase.x, y: sBase.y, name: 'Cuota normal', mode: 'lines', line: { color: COLOR_BASE, width: 4, dash: 'solid' } },
+      { x: sMensual.x, y: sMensual.y, name: 'Abono mensual extra', mode: 'lines', line: { color: COLOR_MENSUAL, width: 4, dash: 'dash' } },
+      { x: sUnico.x, y: sUnico.y, name: 'Abono único', mode: 'lines', line: { color: COLOR_UNICO, width: 4, dash: 'dot' } }
+    ], Object.assign({ title: 'Saldo de la deuda mes a mes' }, layoutComun), { displayModeBar: false, responsive: true });
+
+    Plotly.newPlot('chartComposicion', [
+      { x: escMensual.filas.map(function (f) { return f.mes; }), y: escMensual.filas.map(function (f) { return f.interes; }), name: 'Interés', stackgroup: 'uno', mode: 'lines', line: { color: COLOR_RIESGO, width: 4 } },
+      { x: escMensual.filas.map(function (f) { return f.mes; }), y: escMensual.filas.map(function (f) { return f.abonoCapital; }), name: 'Abono a capital', stackgroup: 'uno', mode: 'lines', line: { color: COLOR_UNICO, width: 4 } }
+    ], Object.assign({ title: 'Interés vs. abono a capital cada mes (escenario "abono mensual extra")' }, layoutComun), { displayModeBar: false, responsive: true });
+
+    Plotly.newPlot('chartBarras', [{
+      type: 'bar',
+      orientation: 'h',
+      x: [base.totalIntereses, escMensual.totalIntereses, escUnico.totalIntereses, 0],
+      y: ['Cuota normal', 'Abono mensual extra', 'Abono único', 'Pagar todo hoy'],
+      marker: { color: [COLOR_BASE, COLOR_MENSUAL, COLOR_UNICO, COLOR_ROSA] },
+      text: [base.totalIntereses, escMensual.totalIntereses, escUnico.totalIntereses, 0].map(function (v) { return money(v); }),
+      textposition: 'auto',
+      textfont: { size: 18 }
+    }], Object.assign({ title: 'Intereses totales por estrategia' }, layoutComun), { displayModeBar: false, responsive: true });
+  }
+
+  // ---------- TABLA ANUAL + CSV ----------
+
+  let ultimasFilas = [];
+
+  function dibujarTablaAnual(esc, saldoInicial) {
+    ultimasFilas = esc.filas;
+    const tbody = document.getElementById('tablaAnualBody');
+    tbody.innerHTML = '';
+    let saldoInicioAno = saldoInicial;
+    let ano = 1;
+    for (let i = 0; i < esc.filas.length; i += 12) {
+      const grupo = esc.filas.slice(i, i + 12);
+      const interesAno = grupo.reduce(function (a, f) { return a + f.interes; }, 0);
+      const capitalAno = grupo.reduce(function (a, f) { return a + f.abonoCapital; }, 0);
+      const saldoFinAno = grupo[grupo.length - 1].saldo;
+      const tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>Año ' + ano + '</td><td>' + money(saldoInicioAno) + '</td><td>' + money(interesAno) +
+        '</td><td>' + money(capitalAno) + '</td><td>' + money(saldoFinAno) + '</td>';
+      tbody.appendChild(tr);
+      saldoInicioAno = saldoFinAno;
+      ano++;
+    }
+  }
+
+  function descargarCSV() {
+    const encabezado = 'Mes,Fecha,Interes,AbonoCapital,Pago,Saldo\n';
+    const filas = ultimasFilas.map(function (f) {
+      return [f.mes, fechaTexto(f.mes), Math.round(f.interes), Math.round(f.abonoCapital), Math.round(f.pago), Math.round(f.saldo)].join(',');
+    }).join('\n');
+    const blob = new Blob([encabezado + filas], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'tabla-amortizacion.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  // ---------- EVENTOS ----------
+
+  document.querySelectorAll('input').forEach(function (el) {
+    el.addEventListener('input', render);
+  });
+  document.querySelectorAll('input[name="modo"]').forEach(function (el) {
+    el.addEventListener('change', render);
+  });
+
+  // Formatea el monto del abono único con puntos de miles mientras el usuario escribe.
+  const inAbonoUnico = document.getElementById('inAbonoUnico');
+  inAbonoUnico.addEventListener('input', function () {
+    const digitos = inAbonoUnico.value.replace(/\D/g, '');
+    inAbonoUnico.value = digitos ? Number(digitos).toLocaleString('es-CO') : '';
+  });
+
+  document.getElementById('btnContraste').addEventListener('click', function () {
+    document.body.classList.toggle('contraste');
+  });
+  document.getElementById('btnImprimir').addEventListener('click', function () {
+    window.print();
+  });
+  document.getElementById('btnCSV').addEventListener('click', descargarCSV);
+
+  autocomprobar();
+  render();
+})();
+</script>
+
+</body>
+</html>
