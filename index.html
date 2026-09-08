@@ -579,8 +579,23 @@
 
   // ---------- FORMATO ----------
 
+  // Formato colombiano de cheque/factura: apóstrofe para separar los millones, punto para los miles.
+  // Ej: 254090608 -> $254'090.608 — más fácil de leer que $254.090.608 seguido.
   function money(n) {
-    return '$' + Math.round(n).toLocaleString('es-CO');
+    const entero = Math.round(Math.abs(n));
+    const signo = n < 0 ? '-' : '';
+    const grupos = [];
+    let resto = String(entero);
+    while (resto.length > 3) {
+      grupos.unshift(resto.slice(-3));
+      resto = resto.slice(0, -3);
+    }
+    grupos.unshift(resto);
+    let texto = grupos[0];
+    for (let i = 1; i < grupos.length; i++) {
+      texto += (i === 1 && grupos.length === 3 ? "'" : '.') + grupos[i];
+    }
+    return signo + '$' + texto;
   }
 
   function fechaBase() {
