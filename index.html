@@ -186,18 +186,26 @@
 
   .barra-botones { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 1rem 0; }
 
-  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 1rem; margin: 1rem 0 2rem 0; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1rem; margin: 1rem 0 2rem 0; }
   .kpi-card {
     border-radius: 0.75rem;
     padding: 1.25rem;
     background: #EAF4FB;
     border: 3px solid #0072B2;
+    min-width: 0;
+    overflow: hidden;
   }
   body.contraste .kpi-card { background: #10222E; border-color: #66C2FF; }
   .kpi-card.acento-mensual { background: #FFF6E5; border-color: #E69F00; }
   body.contraste .kpi-card.acento-mensual { background: #2C2200; border-color: #FFC85C; }
   .kpi-card h3 { margin: 0 0 0.5rem 0; font-size: 1.15rem; }
-  .kpi-valor { font-size: 2.6rem; font-weight: 700; line-height: 1.1; }
+  .kpi-valor {
+    font-size: 2.6rem;
+    font-weight: 700;
+    line-height: 1.15;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
 
   .warning-card {
     border: 4px solid #D55E00;
